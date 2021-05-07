@@ -50,12 +50,11 @@ public class productController {
     }
 
     @GetMapping("/search")
-    public List<Product> listingBySearch(@RequestParam(name = "q") String q,
-                                         @RequestParam(name = "min_price") Double min_price,
-                                         @RequestParam(name = "max_price") Double max_price) {
+    public List<Product> listingBySearch(@RequestParam(required = false,name = "min_price") Double min_price,
+                                         @RequestParam(required = false,name = "max_price") Double max_price,
+                                         @RequestParam(required = false,name = "q") String q) {
         logger.debug("Acessando serviço para listar todos os clientes com base nos parametros");
-
-        return productService.findBySearch(q,min_price,max_price);
+        return productService.findBySearch(min_price, max_price, q);
     }
 
 

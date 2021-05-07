@@ -62,7 +62,7 @@ public class productService {
         }
     }
 
-    public List<Product> findBySearch(String q, Double min_price, Double max_price) {
+    public List<Product> findBySearch(Double min_price, Double max_price, String q) {
         return productRepository.findBySearchQuery(min_price,max_price,q);
     }
 }

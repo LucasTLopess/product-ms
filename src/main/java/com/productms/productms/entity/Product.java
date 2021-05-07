@@ -2,6 +2,8 @@ package com.productms.productms.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -18,7 +20,7 @@ public class Product {
     private String description;
 
     @NotNull(message = "Preço do produto deve ser algum valor positivo")
-    @PositiveOrZero
+    @Min(0)
     private Double price;
 
     public String getId() {
