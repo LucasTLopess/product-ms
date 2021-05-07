@@ -1,6 +1,7 @@
 package com.productms.productms.service;
 
 import com.productms.productms.entity.Product;
+import com.productms.productms.entity.errorCreateUpdate;
 import com.productms.productms.repository.productRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,14 @@ public class productService {
         return productRepository.findAll();
     }
 
-    public Product create(Product product) {
-        return productRepository.save(product);
+    public ResponseEntity<?> create(Product product) {
+        try {
+            return ResponseEntity.ok().body(productRepository.save(product));
+        } catch (Exception e) {
+            errorCreateUpdate error = new errorCreateUpdate("400", "Erro no " +
+                    "corpo da requisição");
+            return ResponseEntity.badRequest().body(error);
+        }
     }
 
     public Object findById(String id) {
@@ -39,16 +46,21 @@ public class productService {
         }
     }
 
-    public Product update(String id, Product product) {
+    public ResponseEntity<?> update(String id, Product product) {
         Product product1 = productRepository.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND,"Produto : "+ id + " não encontrado"));
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto : " + id + " não encontrado"));
+        try {
+            product1.setName(product.getName());
+            product1.setDescription(product.getDescription());
+            product1.setPrice(product.getPrice());
+            final Product productUpdate = productRepository.save(product1);
 
-        product1.setName(product.getName());
-        product1.setDescription(product.getDescription());
-        product1.setPrice(product.getPrice());
-        final Product productUpdate = productRepository.save(product1);
-
-        return productUpdate;
+            return ResponseEntity.ok(productUpdate);
+        } catch (Exception e) {
+            errorCreateUpdate error = new errorCreateUpdate("400", "Erro no " +
+                    "corpo da requisição");
+            return ResponseEntity.badRequest().body(error);
+        }
     }
 
     public ResponseEntity<Product> delete(String id) {
@@ -63,6 +75,6 @@ public class productService {
     }
 
     public List<Product> findBySearch(Double min_price, Double max_price, String q) {
-        return productRepository.findBySearchQuery(min_price,max_price,q);
+        return productRepository.findBySearchQuery(min_price, max_price, q);
     }
 }

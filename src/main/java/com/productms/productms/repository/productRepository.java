@@ -11,7 +11,7 @@ import java.util.List;
 public interface productRepository extends MongoRepository<Product, String> {
 
 
-    @Query("{$or: [{ 'price': { $gte: ?0 }, 'price':{$lte: ?1} },{'description':{$eq: ?2}}, {'name':{$eq: ?2}} ]}")
+    @Query("{$or: [{ 'price': { $gte: ?0}},{'price':{$lte: ?1} },{'description':{$eq: ?2}}, {'name':{$eq: ?2}} ]}")
     public List<Product> findBySearchQuery(Double min_price, Double max_price, String q);
 
 }
