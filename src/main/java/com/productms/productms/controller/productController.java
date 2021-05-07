@@ -1,20 +1,14 @@
 package com.productms.productms.controller;
 
 import com.productms.productms.entity.Product;
-import com.productms.productms.repository.productRepository;
+import com.productms.productms.service.productService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 
 @RestController("/products")
@@ -23,59 +17,46 @@ public class productController {
     Logger logger = LoggerFactory.getLogger(productController.class);
 
     @Autowired
-    public productRepository productRepository;
+    public productService productService;
 
     @GetMapping
-    public ResponseEntity<?> listing() {
+    public List<Product> listing() {
         logger.debug("Acessando serviço para listar todos os clientes");
-        List<Product> list = productRepository.findAll();
-        return ResponseEntity.ok(list);
+        return productService.findAll();
     }
 
     @PostMapping
-    public ResponseEntity<Product> create(@RequestBody Product product) {
-        logger.debug("Criando novo produto");
-        return new ResponseEntity<Product>(productRepository.save(product), HttpStatus.CREATED);
+    public Product create(@RequestBody @Valid Product product) {
+        logger.debug("Acessando serviço para cadastrar novo produto");
+        return productService.create(product);
     }
 
     @GetMapping("/{id}")
-    public Object listProduct(@PathVariable String id) {
-        if (productRepository.findById(id).isEmpty()) {
-            logger.debug("Produto: " + id + " não existe");
-            return new ResponseEntity<Product>(HttpStatus.NOT_FOUND);
-        } else {
-            logger.debug("Listando produto id: " + id);
-            return productRepository.findById(id);
-        }
+    public Object listProductbyId(@PathVariable String id) {
+        logger.debug("Acessando serviço para visualizar produto id: " + id);
+        return productService.findById(id);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateUser(
-            @PathVariable(value = "id") String id, @RequestBody @Validated Product product) throws ResourceAccessException
-             {
-        Product product1 = productRepository.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND,"Produto : "+ id + " não encontrado"));
-
-        product1.setName(product.getName());
-        product1.setDescription(product.getDescription());
-        product1.setPrice(product.getPrice());
-        final Product productUpdate = productRepository.save(product1);
-
-        return ResponseEntity.ok(productUpdate);
+    public Product update(@Valid @PathVariable(value = "id") String id, @RequestBody Product product) {
+        logger.debug("Acessando serviço para atualizar produto id: " + id);
+        return productService.update(id, product);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity delete(@PathVariable String id) {
-        if (productRepository.findById(id).isEmpty()) {
-            logger.debug("Produto: " + id + " não existe");
-            return new ResponseEntity<Product>(HttpStatus.NOT_FOUND);
-        } else {
-            logger.debug("Listando produto id: " + id);
-            productRepository.deleteById(id);
-            return new ResponseEntity<Product>(HttpStatus.OK);
-        }
+    public void delete(@PathVariable String id) {
+        logger.debug("Acessando serviço para deletar  produto id: " + id);
+        productService.delete(id);
     }
 
+    @GetMapping("/search")
+    public List<Product> listingBySearch(@RequestParam(name = "q") String q,
+                                         @RequestParam(name = "min_price") Double min_price,
+                                         @RequestParam(name = "max_price") Double max_price) {
+        logger.debug("Acessando serviço para listar todos os clientes com base nos parametros");
+
+        return productService.findBySearch(q,min_price,max_price);
+    }
 
 
 }
